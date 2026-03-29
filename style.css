@@ -1,0 +1,468 @@
+:root {
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
+  --bg: #F9FAFB;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --text: #1F2937;
+  --text-light: #6B7280;
+  --accent: #10B981;
+  --danger: #EF4444;
+  --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', 'Noto Sans TC', -apple-system, sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 3rem 1rem;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 4rem;
+  color: white;
+}
+
+h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+  letter-spacing: -0.025em;
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+p.subtitle {
+  opacity: 0.9;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+/* Card Style */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 2rem;
+  padding: 3rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 3rem;
+  transition: transform 0.3s ease;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--primary);
+  border-bottom: 2px solid #E5E7EB;
+  padding-bottom: 1rem;
+}
+
+/* Form Styles */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+input,
+select {
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 2px solid #E5E7EB;
+  background: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+  transform: translateY(-2px);
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+button {
+  padding: 1rem 2.5rem;
+  border-radius: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: none;
+  font-size: 1.1rem;
+}
+
+button.primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+}
+
+button.primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.4);
+}
+
+button.secondary {
+  background: white;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+button.secondary:hover {
+  background: #EEF2FF;
+  transform: translateY(-2px);
+}
+
+/* Nutrition Label Preview Container */
+.label-preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3rem;
+  padding: 1rem;
+}
+
+.label-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.label-heading {
+  font-weight: 800;
+  color: var(--text-light);
+  font-size: 1rem;
+  background: #F3F4F6;
+  padding: 0.5rem 1.5rem;
+  border-radius: 2rem;
+}
+
+/* Authentic Nutrition Label Styles */
+.nutrition-label {
+  background: white;
+  color: black;
+  padding: 12px 20px;
+  /* Reduced vertical padding */
+  border: 1.5px solid black;
+  width: 900px;
+  min-height: auto;
+  display: flex !important;
+  flex-direction: column !important;
+  font-family: "PMingLiU", "MingLiU", serif !important;
+  /* Force PMingLiU */
+  font-weight: 400 !important;
+  /* Global remove bold */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  page-break-inside: avoid;
+  break-inside: avoid;
+  box-sizing: border-box;
+}
+
+.nutrition-label * {
+  font-weight: 400 !important;
+  /* Ensure all children are not bold */
+}
+
+/* PDF Export Specific Container styles */
+.pdf-export-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  background: white;
+  padding: 20px;
+  width: 100%;
+}
+
+.pdf-export-container .nutrition-label {
+  box-shadow: none;
+  /* Remove shadows in PDF for cleanliness */
+  margin-bottom: 20px;
+}
+
+.label-header {
+  font-size: 26px;
+  font-weight: 900;
+  border-bottom: 12px solid black;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1.5px solid black;
+  padding-top: 2px;
+  padding-bottom: 0px;
+  /* Bring line closer to numbers */
+  font-size: 15px;
+  align-items: baseline;
+  line-height: 1.2;
+}
+
+.label-row span:nth-child(1) {
+  flex: 0 0 40%;
+  text-align: left;
+}
+
+.label-row span:nth-child(2) {
+  flex: 0 0 30%;
+  text-align: right;
+}
+
+.label-row span:nth-child(3) {
+  flex: 0 0 30%;
+  text-align: right;
+}
+
+.label-row.bold {
+  font-weight: 400 !important;
+  /* Set to normal */
+}
+
+.label-row.indent {
+  padding-left: 18px;
+}
+
+.label-footer {
+  font-size: 16px;
+  margin-top: 8px;
+  line-height: 1.4;
+  text-align: justify;
+}
+
+/* Row generated by JS adjustments */
+.nutrient-rows,
+.nutrient-rows-percent {
+  width: 100%;
+}
+
+/* Specific animations */
+#result-section {
+  display: none;
+  animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* @media print for PDF generation */
+@media print {
+  body {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  header,
+  .card:not(#result-section .card),
+  .button-container,
+  .card-title,
+  .label-heading {
+    display: none !important;
+  }
+
+  #result-section {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  #result-section .card {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    backdrop-filter: none !important;
+  }
+
+  .label-preview-container {
+    display: block !important;
+    /* Forces vertical stack on paper */
+    padding: 20px !important;
+    gap: 40px !important;
+  }
+
+  .label-wrapper {
+    page-break-after: always;
+    page-break-inside: avoid;
+    break-after: always;
+    break-inside: avoid;
+    margin-bottom: 50px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .nutrition-label {
+    box-shadow: none !important;
+    border: 1.5px solid black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 2rem;
+  }
+
+  h1 {
+    font-size: 2.25rem;
+  }
+
+  .label-preview-container {
+    gap: 2rem;
+  }
+}
+
+/* Custom Modal Styles */
+.modal-wrapper {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 1.5rem;
+}
+
+.modal-wrapper.active {
+  display: flex !important;
+}
+
+.modal-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2.5rem;
+  border-radius: 2rem;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: modalScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@keyframes modalScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-icon {
+  width: 64px;
+  height: 64px;
+  background: #FEE2E2;
+  color: #EF4444;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.modal-icon i {
+  width: 32px;
+  height: 32px;
+}
+
+.modal-card h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  color: #111827;
+}
+
+.modal-card p {
+  color: #4B5563;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.modal-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+button.danger {
+  padding: 1rem;
+  border-radius: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  background: #EF4444;
+  color: white;
+  font-size: 1rem;
+}
+
+button.danger:hover {
+  background: #DC2626;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
+}

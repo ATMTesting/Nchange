@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>專業八大營養標示轉換工具</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- html2pdf.js (Removed due to local file security restrictions) -->
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>八大營養標示功能區</h1>
+            <p class="subtitle">安心資訊平台 - 營養標示換算系統</p>
+        </header>
+
+        <main>
+            <!-- Input Section -->
+            <section class="card">
+                <div class="card-title">
+                    <i data-lucide="edit-3"></i> 數據輸入與設定
+                </div>
+                <div class="grid">
+                    <div class="form-group">
+                        <label for="servingSize">每一份量 (公克/毫升)</label>
+                        <input type="number" id="servingSize" value="48" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="servingsPerContainer">本包裝含 (份)</label>
+                        <input type="number" id="servingsPerContainer" value="2" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="inputBasis">數據輸入基準</label>
+                        <select id="inputBasis">
+                            <option value="per100">每 100 公克/毫升</option>
+                            <option value="perServing">每份</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="logoUrl">頁首 Logo 網址 (可替換)</label>
+                        <input type="text" id="logoUrl" placeholder="請貼入圖片網址"
+                            value="https://www.atmlabs.com.tw/wp-content/uploads/idx_logo1A.png">
+                    </div>
+                </div>
+
+                <hr style="margin: 2rem 0; border: none; border-top: 1px solid #E5E7EB;">
+
+                <div class="grid">
+                    <div class="form-group">
+                        <label>熱量 (kcal)</label>
+                        <input type="number" class="nutrient-input" data-key="calories" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>蛋白質 (g)</label>
+                        <input type="number" class="nutrient-input" data-key="protein" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>脂肪 (g)</label>
+                        <input type="number" class="nutrient-input" data-key="fat" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>飽和脂肪 (g)</label>
+                        <input type="number" class="nutrient-input" data-key="saturatedFat" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>反式脂肪 (g)</label>
+                        <input type="number" class="nutrient-input" data-key="transFat" value="0" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>碳水化合物 (g)</label>
+                        <input type="number" class="nutrient-input" data-key="carbs" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>糖 (g)</label>
+                        <input type="number" class="nutrient-input" data-key="sugar" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>鈉 (mg)</label>
+                        <input type="number" class="nutrient-input" data-key="sodium" step="0.01">
+                    </div>
+                </div>
+
+                <div class="button-container" style="gap: 1rem;">
+                    <button class="primary" id="convertBtn">
+                        <i data-lucide="refresh-cw"></i> 數據換算
+                    </button>
+                    <button class="secondary" id="resetBtn">
+                        <i data-lucide="trash-2"></i> 重置數據
+                    </button>
+                </div>
+            </section>
+
+            <!-- Result Section -->
+            <section id="result-section">
+                <div class="card">
+                    <div class="card-title">
+                        <i data-lucide="eye"></i> 營養標示預覽 (雙格式)
+                    </div>
+
+                    <div id="pdf-container" class="label-preview-container">
+                        <!-- Format 1: Per Serving / Per 100g -->
+                        <div class="label-wrapper">
+                            <div class="label-heading">格式一：每份與每 100 公克</div>
+                            <div id="label-format-1" class="nutrition-label">
+                                <div class="label-header">營養標示</div>
+                                <div class="label-row">
+                                    <span class="display-serving-text">每一份量 100 公克</span>
+                                </div>
+                                <div class="label-row" style="border-bottom: 5px solid black; margin-bottom: 5px;">
+                                    <span class="display-container-text">本包裝含 1 份</span>
+                                </div>
+
+                                <div class="label-row bold" style="border-bottom: 2px solid black;">
+                                    <span></span>
+                                    <span>每份</span>
+                                    <span>每 100 公克</span>
+                                </div>
+
+                                <div class="nutrient-rows">
+                                    <!-- Rows generated by JS -->
+                                </div>
+
+                                <div class="label-footer">
+                                    每日參考值：熱量 2000 大卡、蛋白質 60 公克、脂肪 60 公克、飽和脂肪 18 公克、碳水化合物 300 公克、鈉 2000 毫克。
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Format 2: Per Serving / % Daily Value -->
+                        <div class="label-wrapper">
+                            <div class="label-heading">格式二：每份與每日參考值百分比</div>
+                            <div id="label-format-2" class="nutrition-label">
+                                <div class="label-header">營養標示</div>
+                                <div class="label-row">
+                                    <span class="display-serving-text">每一份量 100 公克</span>
+                                </div>
+                                <div class="label-row" style="border-bottom: 5px solid black; margin-bottom: 5px;">
+                                    <span class="display-container-text">本包裝含 1 份</span>
+                                </div>
+
+                                <div class="label-row bold" style="border-bottom: 2px solid black;">
+                                    <span></span>
+                                    <span>每份</span>
+                                    <span>每日參考值百分比</span>
+                                </div>
+
+                                <div class="nutrient-rows-percent">
+                                    <!-- Rows generated by JS -->
+                                </div>
+
+                                <div class="label-footer">
+                                    每日參考值：熱量 2000 大卡、蛋白質 60 公克、脂肪 60 公克、飽和脂肪 18 公克、碳水化合物 300 公克、鈉 2000
+                                    毫克。(標示"＊"為營養素其參考值尚未訂定。)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="button-container">
+                        <button class="primary" id="downloadPdfBtn">
+                            <i data-lucide="printer"></i> 轉為 PDF檔案
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Custom Modal for Reset Confirmation -->
+    <div id="reset-modal" class="modal-wrapper">
+        <div class="modal-card">
+            <div class="modal-icon">
+                <i data-lucide="alert-triangle"></i>
+            </div>
+            <h3>清除所有數據？</h3>
+            <p>此動作將清空所有數值輸入，確定要繼續嗎？</p>
+            <div class="modal-buttons">
+                <button class="secondary" id="cancelReset">取消</button>
+                <button class="danger" id="confirmReset">確定清除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
