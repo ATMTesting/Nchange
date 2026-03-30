@@ -18,24 +18,29 @@
 <body>
     <div class="container">
         <header>
-            <h1>八大營養標示功能區</h1>
-            <p class="subtitle">安心資訊平台 - 營養標示換算系統</p>
+            <img src="https://lh3.googleusercontent.com/d/13GbpipwTLp_dARsGcYAfT_xX1aSLgn3d" alt="Logo" class="main-logo"
+                referrerpolicy="no-referrer">
+            <div class="header-text">
+                <h1>八大營養標示換算工具</h1>
+                <p class="subtitle">安心資訊平台 - 營養標示換算系統</p>
+            </div>
+            <div class="header-spacer"></div>
         </header>
 
         <main>
             <!-- Input Section -->
             <section class="card">
                 <div class="card-title">
-                    <i data-lucide="edit-3"></i> 數據輸入與設定
+                    <i data-lucide="edit-3"></i> 標示數據輸入
                 </div>
                 <div class="grid">
                     <div class="form-group">
                         <label for="servingSize">每一份量 (公克/毫升)</label>
-                        <input type="number" id="servingSize" step="0.1">
+                        <input type="number" id="servingSize" placeholder="請輸入公克" step="0.1">
                     </div>
                     <div class="form-group">
                         <label for="servingsPerContainer">本包裝含 (份)</label>
-                        <input type="number" id="servingsPerContainer" step="0.1">
+                        <input type="number" id="servingsPerContainer" placeholder="請輸入份數" step="0.1">
                     </div>
                     <div class="form-group">
                         <label for="inputBasis">數據輸入基準</label>
@@ -44,7 +49,7 @@
                             <option value="perServing">每份</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display: none;">
                         <label for="logoUrl">頁首 Logo 網址 (可替換)</label>
                         <input type="text" id="logoUrl" placeholder="請貼入圖片網址"
                             value="https://www.atmlabs.com.tw/wp-content/uploads/idx_logo1A.png">
@@ -55,35 +60,35 @@
 
                 <div class="grid">
                     <div class="form-group">
-                        <label>熱量 (kcal)</label>
+                        <label>熱量 (kcal/100g)</label>
                         <input type="number" class="nutrient-input" data-key="calories" step="0.01">
                     </div>
                     <div class="form-group">
-                        <label>蛋白質 (g)</label>
+                        <label>蛋白質 (g/100g)</label>
                         <input type="number" class="nutrient-input" data-key="protein" step="0.01">
                     </div>
                     <div class="form-group">
-                        <label>脂肪 (g)</label>
+                        <label>脂肪 (g/100g)</label>
                         <input type="number" class="nutrient-input" data-key="fat" step="0.01">
                     </div>
                     <div class="form-group">
-                        <label>飽和脂肪 (g)</label>
+                        <label>飽和脂肪 (g/100g)</label>
                         <input type="number" class="nutrient-input" data-key="saturatedFat" step="0.01">
                     </div>
                     <div class="form-group">
-                        <label>反式脂肪 (g)</label>
+                        <label>反式脂肪 (g/100g)</label>
                         <input type="number" class="nutrient-input" data-key="transFat" value="0" step="0.1">
                     </div>
                     <div class="form-group">
-                        <label>碳水化合物 (g)</label>
+                        <label>碳水化合物 (g/100g)</label>
                         <input type="number" class="nutrient-input" data-key="carbs" step="0.01">
                     </div>
                     <div class="form-group">
-                        <label>糖 (g)</label>
+                        <label>糖 (g/100g)</label>
                         <input type="number" class="nutrient-input" data-key="sugar" step="0.01">
                     </div>
                     <div class="form-group">
-                        <label>鈉 (mg)</label>
+                        <label>鈉 (mg/100g)</label>
                         <input type="number" class="nutrient-input" data-key="sodium" step="0.01">
                     </div>
                 </div>
@@ -118,14 +123,8 @@
                                     <span class="display-container-text">本包裝含 1 份</span>
                                 </div>
 
-                                <div class="label-row bold" style="border-bottom: 2px solid black;">
-                                    <span></span>
-                                    <span>每份</span>
-                                    <span>每 100 公克</span>
-                                </div>
-
-                                <div class="nutrient-rows">
-                                    <!-- Rows generated by JS -->
+                                <div id="table-content-1" class="nutrient-table-container">
+                                    <!-- Table generated by JS -->
                                 </div>
 
                                 <div class="label-footer">
@@ -146,14 +145,8 @@
                                     <span class="display-container-text">本包裝含 1 份</span>
                                 </div>
 
-                                <div class="label-row bold" style="border-bottom: 2px solid black;">
-                                    <span></span>
-                                    <span>每份</span>
-                                    <span>每日參考值百分比</span>
-                                </div>
-
-                                <div class="nutrient-rows-percent">
-                                    <!-- Rows generated by JS -->
+                                <div id="table-content-2" class="nutrient-table-container">
+                                    <!-- Table generated by JS -->
                                 </div>
 
                                 <div class="label-footer">
