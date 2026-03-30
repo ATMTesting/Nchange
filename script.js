@@ -3,6 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
     const resetBtn = document.getElementById('resetBtn');
     const resultSection = document.getElementById('result-section');
+    
+    // Clear serving inputs on load to ensure empty on Ctrl+F5
+    const servingSizeInput = document.getElementById('servingSize');
+    const servingsPerContainerInput = document.getElementById('servingsPerContainer');
+    if (servingSizeInput) servingSizeInput.value = '';
+    if (servingsPerContainerInput) servingsPerContainerInput.value = '';
 
     // Daily Reference Values (DRV) - Taiwan TFDA
     const DRV = {
@@ -18,28 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // TFDA Rounding & 0-Labeling Rules
     const applyRules = (value, type) => {
-        if (value === null || value === undefined || isNaN(value)) return "0";
+        if (value === null || value === undefined || isNaN(value)) return "0.0";
         const v = parseFloat(value);
-
-        switch (type) {
-            case 'calories':
-                // User requested 1 decimal accuracy
-                return v <= 4 ? "0" : v.toFixed(1);
-            case 'sodium':
-                // Sodium <= 5 mg -> 0, usually integer in Taiwan
-                return v <= 5 ? "0" : v.toFixed(0);
-            case 'protein':
-            case 'fat':
-            case 'carbs':
-            case 'sugar':
-                return v <= 0.5 ? "0" : v.toFixed(1);
-            case 'saturatedFat':
-                return v <= 0.1 ? "0" : v.toFixed(1);
-            case 'transFat':
-                return v <= 0.3 ? "0" : v.toFixed(1);
-            default:
-                return v.toFixed(1);
-        }
+        
+        // TFDA rules for 0-labeling (not applicable here as user wants 0.0, but keeping logic for future)
+        // However, user explicitly requested "0.0" for one-decimal format
+        return v.toFixed(1);
     };
 
     const calculatePercent = (value, key) => {
@@ -58,9 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
         displayServings.forEach(el => el.textContent = `每一份量 ${servingSize} 公克(或毫升)`);
         displayContainers.forEach(el => el.textContent = `本包裝含 ${servingsPerContainer} 份`);
 
-        const rowsContainer = document.querySelector(`#${containerId} .nutrient-rows`) ||
-            document.querySelector(`#${containerId} .nutrient-rows-percent`);
-        rowsContainer.innerHTML = '';
+        const tableContainer = document.getElementById(format === 1 ? 'table-content-1' : 'table-content-2');
+        if (!tableContainer) return;
+        tableContainer.innerHTML = '';
 
         const nutrients = [
             { key: 'calories', label: '熱量', unit: '大卡', bold: true },
@@ -73,29 +63,52 @@ document.addEventListener('DOMContentLoaded', () => {
             { key: 'sodium', label: '鈉', unit: '毫克', bold: true }
         ];
 
+        const table = document.createElement('table');
+        table.className = 'nutrition-table';
+        
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <th></th>
+            <th>每份</th>
+            <th>${format === 1 ? '每 100 公克' : '每日參考值百分比'}</th>
+        `;
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
         nutrients.forEach(n => {
-            const row = document.createElement('div');
-            row.className = `label-row ${n.bold ? 'bold' : ''} ${n.indent ? 'indent' : ''}`;
-
-            const nameSpan = document.createElement('span');
-            nameSpan.textContent = n.label;
-
-            const val1Span = document.createElement('span');
-            val1Span.textContent = `${applyRules(data[n.key].perServing, n.key)} ${n.unit}`;
-
-            const val2Span = document.createElement('span');
+            const tr = document.createElement('tr');
+            if (n.indent) tr.className = 'indent';
+            
+            const nameTd = document.createElement('td');
+            nameTd.textContent = n.label;
+            
+            const val1Td = document.createElement('td');
+            const v1Num = applyRules(data[n.key].perServing, n.key);
+            val1Td.innerHTML = `<div class="data-wrapper"><span class="v-num">${v1Num}</span><span class="v-unit">${n.unit}</span></div>`;
+            
+            const val2Td = document.createElement('td');
             if (format === 1) {
-                val2Span.textContent = `${applyRules(data[n.key].per100, n.key)} ${n.unit}`;
+                const v2Num = applyRules(data[n.key].per100, n.key);
+                val2Td.innerHTML = `<div class="data-wrapper"><span class="v-num">${v2Num}</span><span class="v-unit">${n.unit}</span></div>`;
             } else {
                 const p = calculatePercent(data[n.key].perServing, n.key);
-                val2Span.textContent = p === "＊" ? "＊" : `${p} %`;
+                if (p === "＊") {
+                    val2Td.innerHTML = `<div style="text-align: center;">＊</div>`;
+                } else {
+                    const v2Num = parseFloat(p).toFixed(1);
+                    val2Td.innerHTML = `<div class="data-wrapper"><span class="v-num">${v2Num}</span><span class="v-unit">%</span></div>`;
+                }
             }
-
-            row.appendChild(nameSpan);
-            row.appendChild(val1Span);
-            row.appendChild(val2Span);
-            rowsContainer.appendChild(row);
+            
+            tr.appendChild(nameTd);
+            tr.appendChild(val1Td);
+            tr.appendChild(val2Td);
+            tbody.appendChild(tr);
         });
+        table.appendChild(tbody);
+        tableContainer.appendChild(table);
     };
 
     const calculate = () => {
@@ -171,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadPdfBtn.addEventListener('click', () => {
         const label1 = document.getElementById('label-format-1');
         const label2 = document.getElementById('label-format-2');
-        const logoUrl = document.getElementById('logoUrl').value || 'https://www.sgs.com.tw/Content/Images/SGS_Logo.png';
+        const logoUrl = document.getElementById('logoUrl').value || 'https://www.atmlabs.com.tw/wp-content/uploads/idx_logo1A.png';
         if (!label1 || !label2) return;
 
         // Open a new tab
@@ -270,21 +283,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         letter-spacing: 3px;
                     }
 
-                    .label-row {
-                        font-size: 19px; /* Revert to balanced 19px */
-                        padding-top: 4px !important;
-                        padding-bottom: 2px !important;
-                        line-height: 1.3 !important;
-                        display: flex !important;
-                        justify-content: space-between !important;
-                        align-items: baseline !important;
-                        border-bottom: 1.5px solid black;
+                    .nutrition-table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                        table-layout: fixed !important;
+                        margin-top: 5px !important;
                     }
-                    .label-row:last-of-type { border-bottom: none; }
-                    
-                    .label-row span:nth-child(1) { flex: 0 0 40% !important; text-align: left !important; }
-                    .label-row span:nth-child(2) { flex: 0 0 30% !important; text-align: right !important; }
-                    .label-row span:nth-child(3) { flex: 0 0 30% !important; text-align: right !important; }
+                    .nutrition-table th, .nutrition-table td {
+                        padding: 2px 0 !important;
+                        vertical-align: baseline !important;
+                        border-bottom: 1.5px solid black !important;
+                    }
+                    .nutrition-table tr:last-child td { border-bottom: none !important; }
+                    .nutrition-table td:nth-child(1) { width: 34% !important; text-align: left !important; }
+                    .nutrition-table td:nth-child(2), .nutrition-table td:nth-child(3) { width: 33% !important; }
+                    .data-wrapper { display: flex !important; justify-content: center !important; align-items: baseline !important; width: 100% !important; }
+                    .v-num { width: 4.5em !important; text-align: right !important; padding-right: 0.1rem !important; }
+                    .v-unit { width: 3.5em !important; text-align: left !important; padding-left: 0.1rem !important; }
+                    .nutrition-table thead th { text-align: center !important; border-bottom: 2px solid black !important; font-weight: 400 !important; }
+                    .indent td:nth-child(1) { padding-left: 18px !important; }
                     
                     /* Footer styles */
                     .sgs-footer {
