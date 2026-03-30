@@ -134,7 +134,7 @@ select {
 input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+  box-shadow: 0 0 0 4px rgba(30, 81, 40, 0.1);
   transform: translateY(-2px);
 }
 
@@ -160,13 +160,13 @@ button {
 button.primary {
   background: var(--primary);
   color: white;
-  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
 }
 
 button.primary:hover {
   background: var(--primary-hover);
   transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
 }
 
 button.secondary {
