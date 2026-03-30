@@ -1,6 +1,6 @@
 :root {
-  --primary: #4F46E5;
-  --primary-hover: #4338CA;
+  --primary: #1e5128;
+  --primary-hover: #2d5a27;
   --bg: #F9FAFB;
   --card-bg: rgba(255, 255, 255, 0.9);
   --glass-border: rgba(255, 255, 255, 0.3);
@@ -19,12 +19,25 @@
 }
 
 body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1e5128 0%, #2d5a27 100%);
   color: var(--text);
   min-height: 100vh;
   padding: 3rem 1rem;
   line-height: 1.6;
 }
+
+.main-logo {
+  height: 70px;
+  margin-bottom: 0;
+  justify-self: start;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2)) brightness(0) invert(1);
+  transition: transform 0.3s ease;
+}
+
+.main-logo:hover {
+  transform: scale(1.05);
+}
+
 
 .container {
   max-width: 1100px;
@@ -32,15 +45,26 @@ body {
 }
 
 header {
-  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
   margin-bottom: 4rem;
   color: white;
 }
 
+.header-text {
+  text-align: center;
+}
+
+.header-spacer {
+  display: block;
+}
+
+
 h1 {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 900;
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem;
   letter-spacing: -0.025em;
   text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -93,7 +117,6 @@ label {
   font-size: 0.9rem;
   font-weight: 700;
   color: #374151;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
@@ -247,19 +270,70 @@ button.secondary:hover {
   line-height: 1.2;
 }
 
-.label-row span:nth-child(1) {
-  flex: 0 0 40%;
+.nutrition-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-top: 5px;
+}
+
+.nutrition-table th,
+.nutrition-table td {
+  padding: 2px 0;
+  vertical-align: baseline;
+  border-bottom: 1.5px solid black;
+  font-family: inherit;
+}
+
+.nutrition-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* 名稱欄位 (第一欄) */
+.nutrition-table th:nth-child(1),
+.nutrition-table td:nth-child(1) {
+  width: 34%;
   text-align: left;
+  font-weight: 400 !important;
 }
 
-.label-row span:nth-child(2) {
-  flex: 0 0 30%;
-  text-align: right;
+/* 數據欄位 (第二、三欄) */
+.nutrition-table th:nth-child(2),
+.nutrition-table td:nth-child(2),
+.nutrition-table th:nth-child(3),
+.nutrition-table td:nth-child(3) {
+  width: 33%;
 }
 
-.label-row span:nth-child(3) {
-  flex: 0 0 30%;
+.data-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  width: 100%;
+}
+
+.v-num {
+  width: 4.5em; /* 固定數值區寬度，確保所有小數點垂直對齊 */
   text-align: right;
+  padding-right: 0.1rem;
+}
+
+.v-unit {
+  width: 3.5em; /* 固定單位區寬度，確保對齊標題重心 */
+  text-align: left;
+  padding-left: 0.1rem;
+}
+
+/* 標頭欄位特化 */
+.nutrition-table thead th {
+  text-align: center;
+  font-weight: 400 !important;
+  border-bottom: 2px solid black;
+}
+
+.nutrition-table.indent td:nth-child(1),
+.nutrition-table .indent td:nth-child(1) {
+  padding-left: 18px;
 }
 
 .label-row.bold {
@@ -359,6 +433,21 @@ button.secondary:hover {
 }
 
 @media (max-width: 768px) {
+  header {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+
+  .header-spacer {
+    display: none;
+  }
+
+  .main-logo {
+    height: 60px;
+  }
+
   .card {
     padding: 2rem;
   }
