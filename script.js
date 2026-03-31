@@ -181,198 +181,266 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === resetModal) hideModal();
     });
 
-    downloadPdfBtn.addEventListener('click', () => {
+    const getFormattedDate = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const toBase64 = (url) => {
+        return new Promise((resolve) => {
+            const timeout = setTimeout(() => resolve(null), 2000);
+            const img = new Image();
+            img.setAttribute('crossOrigin', 'anonymous');
+            img.onload = () => {
+                clearTimeout(timeout);
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                try { resolve(canvas.toDataURL('image/png')); } catch (e) { resolve(null); }
+            };
+            img.onerror = () => { clearTimeout(timeout); resolve(null); };
+            img.src = url;
+        });
+    };
+
+    const getReportStyles = () => {
+        return `
+            body { 
+                background: #f3f4f6; 
+                margin: 0; 
+                padding: 0; 
+                font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            }
+            .report-page {
+                background: white;
+                margin: 40px auto;
+                padding: 10mm 15mm;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                width: 210mm; /* A4 size width */
+                min-height: 295mm;
+                display: flex;
+                flex-direction: column;
+                box-sizing: border-box;
+                position: relative;
+                page-break-after: always;
+            }
+            .sgs-header {
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                margin-bottom: 25px;
+            }
+            .sgs-logo { height: 60px; max-width: 200px; object-fit: contain; }
+            .logo-placeholder { font-size: 24px; font-weight: 800; color: #1e5128; border-left: 4px solid #1e5128; padding-left: 15px; }
+            .sgs-platform-name {
+                margin-left: 35px;
+                font-size: 40px;
+                font-weight: 700;
+                color: #666;
+                letter-spacing: 2px;
+            }
+            .report-title {
+                font-size: 34px;
+                font-weight: 800;
+                color: black;
+                margin-bottom: 20px;
+            }
+            .title-underline {
+                border-bottom: 2px solid #333;
+                width: 100%;
+                margin-bottom: 40px;
+            }
+            .format-tag {
+                text-align: center;
+                font-size: 20px;
+                margin-bottom: 15px;
+                font-weight: 500;
+                color: #444;
+            }
+            .label-container {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 30px;
+            }
+            .nutrition-label {
+                border: 2px solid black !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                padding: 15px 25px !important;
+                box-sizing: border-box !important;
+                font-family: "PMingLiU", "MingLiU", serif !important;
+            }
+            .nutrition-label * { font-weight: 400 !important; }
+            .label-header {
+                font-size: 32px;
+                font-weight: 900 !important;
+                border-bottom: 12px solid black;
+                padding-bottom: 6px;
+                margin-bottom: 8px;
+                text-align: center;
+                letter-spacing: 3px;
+            }
+            .nutrition-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                table-layout: fixed !important;
+                margin-top: 5px !important;
+            }
+            .nutrition-table th, .nutrition-table td {
+                padding: 2px 0 !important;
+                vertical-align: baseline !important;
+                border-bottom: 1.5px solid black !important;
+            }
+            .nutrition-table tr:last-child td { border-bottom: none !important; }
+            .nutrition-table td:nth-child(1) { width: 34% !important; text-align: left !important; }
+            .nutrition-table td:nth-child(2), .nutrition-table td:nth-child(3) { width: 33% !important; }
+            .data-wrapper { display: flex !important; justify-content: center !important; align-items: baseline !important; width: 100% !important; }
+            .v-num { width: 4.5em !important; text-align: right !important; padding-right: 0.1rem !important; }
+            .v-unit { width: 3.5em !important; text-align: left !important; padding-left: 0.1rem !important; }
+            .nutrition-table thead th { text-align: center !important; border-bottom: 2px solid black !important; font-weight: 400 !important; }
+            .indent td:nth-child(1) { padding-left: 18px !important; }
+            .sgs-footer {
+                margin-top: auto;
+                display: flex;
+                justify-content: space-between;
+                font-size: 13px;
+                color: #333;
+                padding-top: 15px;
+                border-top: 2px solid #DDD;
+            }
+            .disclaimer { flex-basis: 80%; line-height: 1.6; }
+            .page-number { font-weight: bold; }
+            
+            @media print {
+                body { background: white !important; }
+                .report-page { margin: 0; box-shadow: none; }
+            }
+        `;
+    };
+
+    const getReportBody = (label1Html, label2Html, logoUrl) => {
+        const logoHtml = logoUrl ? `<img src="${logoUrl}" class="sgs-logo">` : `<div class="logo-placeholder">安心資訊平台</div>`;
+        return `
+            <div class="report-page">
+                <div class="sgs-header">
+                    ${logoHtml}
+                    <div class="sgs-platform-name">換算結果報表</div>
+                </div>
+                <div class="report-title">營養標示換算結果</div>
+                <div class="title-underline"></div>
+                <div class="format-tag">(格式一)</div>
+                <div class="label-container">${label1Html}</div>
+                <div class="sgs-footer">
+                    <div class="disclaimer">*本營養標示換算工具不對產品合法性做判斷，所提供之換算結果與表格僅供參考，請以最新公告法規內容為準。</div>
+                    <div class="page-number">Page:1/2</div>
+                </div>
+            </div>
+            <div class="report-page">
+                <div class="sgs-header">
+                    ${logoHtml}
+                    <div class="sgs-platform-name">換算結果報表</div>
+                </div>
+                <div class="report-title">營養標示換算結果</div>
+                <div class="title-underline"></div>
+                <div class="format-tag">(格式二)</div>
+                <div class="label-container">${label2Html}</div>
+                <div class="sgs-footer">
+                    <div class="disclaimer">*本營養標示換算工具不對產品合法性做判斷，所提供之換算結果與表格僅供參考，請以最新公告法規內容為準。</div>
+                    <div class="page-number">Page:2/2</div>
+                </div>
+            </div>
+        `;
+    };
+
+    const openReportWindow = (shouldPrint) => {
         const label1 = document.getElementById('label-format-1');
         const label2 = document.getElementById('label-format-2');
-        const logoUrl = document.getElementById('logoUrl').value || 'https://www.atmlabs.com.tw/wp-content/uploads/idx_logo1A.png';
+        const logoUrlInput = document.getElementById('logoUrl').value || 'https://www.atmlabs.com.tw/wp-content/uploads/idx_logo1A.png';
         if (!label1 || !label2) return;
 
-        // Open a new tab
         const reportWindow = window.open('', '_blank');
-
-        // Generate the HTML for the SGS-style report tab
         const html = `
             <!DOCTYPE html>
             <html lang="zh-TW">
             <head>
                 <meta charset="UTF-8">
-                <title>SGS 安心資訊平台 - 營養標示報表</title>
-                <link rel="stylesheet" href="style.css">
-                <style>
-                    body { 
-                        background: #f3f4f6; 
-                        margin: 0; 
-                        padding: 0; 
-                        font-family: 'Inter', 'Noto Sans TC', sans-serif;
-                    }
-                    .report-page {
-                        background: white;
-                        margin: 40px auto;
-                        padding: 10mm 15mm;
-                        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-                        width: 210mm; /* A4 size width */
-                        min-height: auto !important; /* Allow to shrink vertically */
-                        display: flex;
-                        flex-direction: column;
-                        box-sizing: border-box;
-                        position: relative;
-                        page-break-after: always;
-                    }
-                    
-                    /* SGS Template Header */
-                    .sgs-header {
-                        display: flex;
-                        justify-content: flex-start;
-                        align-items: center;
-                        margin-bottom: 25px;
-                    }
-                    .sgs-logo { height: 60px; }
-                    .sgs-platform-name {
-                        margin-left: 35px;
-                        font-size: 40px; /* Revert to balanced size */
-                        font-weight: 700;
-                        color: #666;
-                        letter-spacing: 2px;
-                    }
-                    .report-title {
-                        font-size: 34px; /* Revert to balanced size */
-                        font-weight: 800;
-                        color: black;
-                        margin-bottom: 20px;
-                    }
-                    .title-underline {
-                        border-bottom: 2px solid #333;
-                        width: 100%;
-                        margin-bottom: 40px;
-                    }
-                    
-                    /* Label Formatting */
-                    .format-tag {
-                        text-align: center;
-                        font-size: 20px;
-                        margin-bottom: 15px;
-                        font-weight: 500;
-                        color: #444;
-                    }
-                    .label-container {
-                        display: flex;
-                        justify-content: center;
-                        margin-bottom: 30px;
-                    }
-                    .nutrition-label {
-                        border: 2px solid black !important;
-                        box-shadow: none !important;
-                        width: 100% !important;
-                        min-height: auto !important;
-                        display: flex;
-                        flex-direction: column;
-                        padding: 15px 25px !important;
-                        box-sizing: border-box !important;
-                        font-family: "PMingLiU", "MingLiU", serif !important;
-                        font-weight: 400 !important;
-                    }
-                    .nutrition-label * { font-weight: 400 !important; }
-                    
-                    .label-header {
-                        font-size: 32px;
-                        font-weight: 900 !important;
-                        border-bottom: 12px solid black;
-                        padding-bottom: 6px;
-                        margin-bottom: 8px;
-                        text-align: center;
-                        letter-spacing: 3px;
-                    }
-
-                    .nutrition-table {
-                        width: 100% !important;
-                        border-collapse: collapse !important;
-                        table-layout: fixed !important;
-                        margin-top: 5px !important;
-                    }
-                    .nutrition-table th, .nutrition-table td {
-                        padding: 2px 0 !important;
-                        vertical-align: baseline !important;
-                        border-bottom: 1.5px solid black !important;
-                    }
-                    .nutrition-table tr:last-child td { border-bottom: none !important; }
-                    .nutrition-table td:nth-child(1) { width: 34% !important; text-align: left !important; }
-                    .nutrition-table td:nth-child(2), .nutrition-table td:nth-child(3) { width: 33% !important; }
-                    .data-wrapper { display: flex !important; justify-content: center !important; align-items: baseline !important; width: 100% !important; }
-                    .v-num { width: 4.5em !important; text-align: right !important; padding-right: 0.1rem !important; }
-                    .v-unit { width: 3.5em !important; text-align: left !important; padding-left: 0.1rem !important; }
-                    .nutrition-table thead th { text-align: center !important; border-bottom: 2px solid black !important; font-weight: 400 !important; }
-                    .indent td:nth-child(1) { padding-left: 18px !important; }
-                    
-                    /* Footer styles */
-                    .sgs-footer {
-                        margin-top: 40px;
-                        display: flex;
-                        justify-content: space-between;
-                        font-size: 13px;
-                        color: #333;
-                        padding-top: 15px;
-                        border-top: 2px solid #DDD;
-                    }
-                    .disclaimer { flex-basis: 80%; line-height: 1.6; }
-                    .page-number { font-weight: bold; }
-
-                    @media print {
-                        body { background: white; padding: 0; margin: 0; }
-                        .report-page { 
-                            margin: 0;
-                            padding: 10mm 15mm;
-                            box-shadow: none; 
-                            width: 210mm;
-                            min-height: auto !important;
-                        }
-                    }
-                </style>
+                <title>${getFormattedDate()}_八大營養標示換算報表</title>
+                <style>${getReportStyles()}</style>
             </head>
             <body>
-                <!-- Page 1 -->
-                <div class="report-page">
-                    <div class="sgs-header">
-                        <img src="${logoUrl}" class="sgs-logo" onerror="this.src='https://www.sgs.com.tw/Content/Images/SGS_Logo.png'">
-                        <div class="sgs-platform-name">安心資訊平台</div>
-                    </div>
-                    <div class="report-title">營養標示換算結果</div>
-                    <div class="title-underline"></div>
-                    
-                    <div class="format-tag">(格式一)</div>
-                    <div class="label-container">
-                        ${label1.outerHTML}
-                    </div>
-                    
-                    <div class="sgs-footer">
-                        <div class="disclaimer">*本營養標示換算工具不對產品合法性做判斷，所提供之換算結果與表格僅供參考，請以最新公告法規內容為準。</div>
-                        <div class="page-number">Page:1/2</div>
-                    </div>
-                </div>
-
-                <!-- Page 2 -->
-                <div class="report-page">
-                    <div class="sgs-header">
-                        <img src="${logoUrl}" class="sgs-logo" onerror="this.src='https://www.sgs.com.tw/Content/Images/SGS_Logo.png'">
-                        <div class="sgs-platform-name">安心資訊平台</div>
-                    </div>
-                    <div class="report-title">營養標示換算結果</div>
-                    <div class="title-underline"></div>
-                    
-                    <div class="format-tag">(格式二)</div>
-                    <div class="label-container">
-                        ${label2.outerHTML}
-                    </div>
-                    
-                    <div class="sgs-footer">
-                        <div class="disclaimer">*本營養標示換算工具不對產品合法性做判斷，所提供之換算結果與表格僅供參考，請以最新公告法規內容為準。</div>
-                        <div class="page-number">Page:2/2</div>
-                    </div>
-                </div>
+                ${getReportBody(label1.outerHTML, label2.outerHTML, logoUrlInput)}
+                ${shouldPrint ? `
+                <script>
+                    window.onload = function() {
+                        setTimeout(function() { window.print(); }, 500);
+                        window.onafterprint = function() { window.close(); };
+                    }
+                </script>
+                ` : ''}
             </body>
             </html>
         `;
-
         reportWindow.document.write(html);
         reportWindow.document.close();
-    });
+    };
+
+    const previewReportBtn = document.getElementById('previewReportBtn');
+    const printPdfBtn = document.getElementById('printPdfBtn');
+    const saveDirectPdfBtn = document.getElementById('saveDirectPdfBtn');
+
+    if (previewReportBtn) previewReportBtn.addEventListener('click', () => openReportWindow(false));
+    if (printPdfBtn) printPdfBtn.addEventListener('click', () => openReportWindow(true));
+
+    if (saveDirectPdfBtn) {
+        saveDirectPdfBtn.addEventListener('click', async () => {
+            if (window.location.protocol === 'file:') {
+                const proceed = confirm("偵測到您正在「本地環境」執行。此按鈕產生的 PDF 在本地環境極大機率出現空白。建議使用「系統列印」按鈕。\n\n是否仍要嘗試（供 GitHub 測試用）？");
+                if (!proceed) return;
+            }
+
+            const label1 = document.getElementById('label-format-1');
+            const label2 = document.getElementById('label-format-2');
+            const logoUrlInput = document.getElementById('logoUrl').value || 'https://www.atmlabs.com.tw/wp-content/uploads/idx_logo1A.png';
+            if (!label1 || !label2) return;
+
+            saveDirectPdfBtn.disabled = true;
+            const originalHtml = saveDirectPdfBtn.innerHTML;
+            saveDirectPdfBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> 處理中...';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            try {
+                const base64Logo = await toBase64(logoUrlInput);
+                const container = document.createElement('div');
+                container.style.position = 'fixed';
+                container.style.top = '0'; container.style.left = '0';
+                container.style.width = '210mm'; container.style.zIndex = '-1000';
+                container.style.opacity = '0.01';
+                container.innerHTML = `<style>${getReportStyles()}</style><div id="capture-area">${getReportBody(label1.outerHTML, label2.outerHTML, base64Logo)}</div>`;
+                document.body.appendChild(container);
+                
+                const opt = {
+                    margin: 0,
+                    filename: `${getFormattedDate()}_八大營養標示換算報表_GitHub測試.pdf`,
+                    image: { type: 'jpeg', quality: 1.0 },
+                    html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#FFFFFF', width: 794, windowWidth: 794 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }
+                };
+
+                await html2pdf().set(opt).from(container).save();
+                document.body.removeChild(container);
+            } catch (err) {
+                console.error(err);
+                alert("儲存過程發生錯誤。建議改用「系統列印」。");
+            } finally {
+                saveDirectPdfBtn.disabled = false;
+                saveDirectPdfBtn.innerHTML = originalHtml;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        });
+    }
 });
