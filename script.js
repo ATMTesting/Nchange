@@ -112,7 +112,31 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const calculate = () => {
-        const servingSize = parseFloat(document.getElementById('servingSize').value) || 100;
+        const servingSizeInputVal = parseFloat(document.getElementById('servingSize').value) || 0;
+        const servingsPerContainerVal = parseFloat(document.getElementById('servingsPerContainer').value) || 0;
+        
+        // --- SGS VALIDATION SPECS START ---
+        const totalFatVal = parseFloat(document.querySelector('[data-key="fat"]').value) || 0;
+        const satFatVal = parseFloat(document.querySelector('[data-key="saturatedFat"]').value) || 0;
+        const transFatVal = parseFloat(document.querySelector('[data-key="transFat"]').value) || 0;
+        const carbsVal = parseFloat(document.querySelector('[data-key="carbs"]').value) || 0;
+        const sugarVal = parseFloat(document.querySelector('[data-key="sugar"]').value) || 0;
+
+        const errors = [];
+        if ((satFatVal + transFatVal) > totalFatVal) {
+            errors.push('「<b>飽和脂肪</b>」與「<b>反式脂肪</b>」的總和不可超過「<b>脂肪</b>」');
+        }
+        if (sugarVal > carbsVal) {
+            errors.push('「<b>糖</b>」含量不可超過「<b>碳水化合物</b>」');
+        }
+
+        if (errors.length > 0) {
+            showValidationModal(errors);
+            return;
+        }
+        // --- SGS VALIDATION SPECS END ---
+
+        const servingSize = servingSizeInputVal || 100;
         const basis = document.getElementById('inputBasis').value;
 
         const inputs = document.querySelectorAll('.nutrient-input');
@@ -149,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     convertBtn.addEventListener('click', calculate);
 
-    // Custom Modal Logic
+    // Custom Modal Logic - Reset
     const resetModal = document.getElementById('reset-modal');
     const confirmResetBtn = document.getElementById('confirmReset');
     const cancelResetBtn = document.getElementById('cancelReset');
@@ -161,24 +185,32 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelResetBtn.addEventListener('click', hideModal);
 
     confirmResetBtn.addEventListener('click', () => {
-        // Clear ALL inputs EXCEPT logoUrl
         document.querySelectorAll('input').forEach(input => {
-            if (input.id !== 'logoUrl') {
-                input.value = '';
-            }
+            if (input.id !== 'logoUrl') input.value = '';
         });
-        
-        // Hide result section
         resultSection.style.display = 'none';
         hideModal();
-        
-        // Refresh icons if needed
         if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 
-    // Close modal if clicking outside the card
-    resetModal.addEventListener('click', (e) => {
-        if (e.target === resetModal) hideModal();
+    // Custom Modal Logic - Validation
+    const validationModal = document.getElementById('validation-modal');
+    const validationMsgList = document.getElementById('validation-msg-list');
+    const closeValidationBtn = document.getElementById('closeValidation');
+
+    const showValidationModal = (msgs) => {
+        validationMsgList.innerHTML = msgs.map(m => `<li>${m}</li>`).join('');
+        validationModal.classList.add('active');
+    };
+    const hideValidationModal = () => validationModal.classList.remove('active');
+
+    closeValidationBtn.addEventListener('click', hideValidationModal);
+
+    // Close modals if clicking outside
+    [resetModal, validationModal].forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('active');
+        });
     });
 
     const getFormattedDate = () => {
@@ -189,36 +221,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${year}-${month}-${day}`;
     };
 
-    const toBase64 = (url) => {
-        return new Promise((resolve) => {
-            const timeout = setTimeout(() => resolve(null), 2000);
-            const img = new Image();
-            img.setAttribute('crossOrigin', 'anonymous');
-            img.onload = () => {
-                clearTimeout(timeout);
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                try { resolve(canvas.toDataURL('image/png')); } catch (e) { resolve(null); }
-            };
-            img.onerror = () => { clearTimeout(timeout); resolve(null); };
-            img.src = url;
-        });
-    };
-
     const getReportStyles = () => {
         return `
             body { 
-                background: white; 
+                background: #f8fafc; 
                 margin: 0; 
                 padding: 0; 
-                font-family: 'Noto Sans TC', sans-serif; /* CRITICAL: Fixed font for canvas capture */
+                font-family: 'Noto Sans TC', sans-serif;
             }
             .report-page {
                 background: white;
-                margin: 0 auto;
+                margin: 20px auto;
                 padding: 10mm 15mm;
                 width: 210mm; 
                 min-height: 295mm;
@@ -227,6 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 box-sizing: border-box;
                 position: relative;
                 page-break-after: always;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             }
             .sgs-header {
                 display: flex;
@@ -308,9 +322,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 display: flex;
                 justify-content: space-between;
                 font-size: 14px;
-                color: #333;
+                color: #555;
                 padding-top: 15px;
-                border-top: 2px solid #DDD;
+                border-top: 2px solid #EEE;
                 font-weight: 500;
             }
             .disclaimer { flex-basis: 80%; line-height: 1.6; }
@@ -318,13 +332,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             @media print {
                 body { background: white !important; }
-                .report-page { margin: 0; box-shadow: none; }
+                .report-page { margin: 0; box-shadow: none; border: none; }
+                .report-page { page-break-after: always; }
             }
         `;
     };
 
     const getReportBody = (label1Html, label2Html, logoUrl) => {
-        const logoHtml = logoUrl ? `<img src="${logoUrl}" class="sgs-logo">` : `<div class="logo-placeholder">營養換算報表</div>`;
+        const logoHtml = logoUrl ? `<img src="${logoUrl}" class="sgs-logo">` : `<div class="logo-placeholder">專業換算結果報表</div>`;
         return `
             <div class="report-page">
                 <div class="sgs-header">
@@ -357,119 +372,33 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     };
 
-    const openReportWindow = (shouldPrint) => {
-        const label1 = document.getElementById('label-format-1');
-        const label2 = document.getElementById('label-format-2');
-        const logoUrlInput = document.getElementById('logoUrl').value || 'https://www.atmlabs.com.tw/wp-content/uploads/idx_logo1A.png';
-        if (!label1 || !label2) return;
-
-        const reportWindow = window.open('', '_blank');
-        const html = `
-            <!DOCTYPE html>
-            <html lang="zh-TW">
-            <head>
-                <meta charset="UTF-8">
-                <title>${getFormattedDate()}_報表預覽</title>
-                <link rel="preconnect" href="https://fonts.googleapis.com">
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
-                <style>${getReportStyles()}</style>
-            </head>
-            <body>
-                ${getReportBody(label1.outerHTML, label2.outerHTML, logoUrlInput)}
-                ${shouldPrint ? `
-                <script>
-                    window.onload = function() {
-                        setTimeout(function() { window.print(); }, 1000);
-                        window.onafterprint = function() { window.close(); };
-                    }
-                </script>
-                ` : ''}
-            </body>
-            </html>
-        `;
-        reportWindow.document.write(html);
-        reportWindow.document.close();
-    };
-
     const previewReportBtn = document.getElementById('previewReportBtn');
-    const printPdfBtn = document.getElementById('printPdfBtn');
-    const saveDirectPdfBtn = document.getElementById('saveDirectPdfBtn');
-
-    if (previewReportBtn) previewReportBtn.addEventListener('click', () => openReportWindow(false));
-    if (printPdfBtn) printPdfBtn.addEventListener('click', () => openReportWindow(true));
-
-    if (saveDirectPdfBtn) {
-        saveDirectPdfBtn.addEventListener('click', async () => {
-            if (window.location.protocol === 'file:') {
-                const proceed = confirm("本地環境極大機率失敗，建議使用「系統列印」。是否繼續測試？");
-                if (!proceed) return;
-            }
-
+    if (previewReportBtn) {
+        previewReportBtn.addEventListener('click', () => {
             const label1 = document.getElementById('label-format-1');
             const label2 = document.getElementById('label-format-2');
             const logoUrlInput = document.getElementById('logoUrl').value || 'https://www.atmlabs.com.tw/wp-content/uploads/idx_logo1A.png';
             if (!label1 || !label2) return;
 
-            saveDirectPdfBtn.disabled = true;
-            const originalHtml = saveDirectPdfBtn.innerHTML;
-            saveDirectPdfBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> 最終渲染中...';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-
-            try {
-                const base64Logo = await toBase64(logoUrlInput);
-                
-                // FINAL ATTEMPT: Visible container AT THE BOTTOM
-                const container = document.createElement('div');
-                container.id = 'ultimate-pdf-container';
-                container.style.position = 'absolute';
-                container.style.top = '10000px'; 
-                container.style.left = '0';
-                container.style.width = '210mm';
-                container.style.zIndex = '9999';
-                container.style.background = 'white';
-                container.style.visibility = 'visible';
-                container.style.opacity = '1';
-
-                container.innerHTML = `
+            const reportWindow = window.open('', '_blank');
+            const html = `
+                <!DOCTYPE html>
+                <html lang="zh-TW">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${getFormattedDate()}_報表預覽</title>
+                    <link rel="preconnect" href="https://fonts.googleapis.com">
+                    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
                     <style>${getReportStyles()}</style>
-                    <div id="capture-area">${getReportBody(label1.outerHTML, label2.outerHTML, base64Logo)}</div>
-                `;
-                document.body.appendChild(container);
-                
-                // Step 3: DELAY for browser to settle layout and fonts
-                await new Promise(r => setTimeout(r, 1200));
-
-                const opt = {
-                    margin: 0,
-                    filename: `${getFormattedDate()}_八大營養標示_GitHub穩定版.pdf`,
-                    image: { type: 'jpeg', quality: 1.0 },
-                    html2canvas: { 
-                        scale: 2, 
-                        useCORS: true, 
-                        allowTaint: true, 
-                        backgroundColor: '#FFFFFF',
-                        scrollY: 0, 
-                        scrollX: 0,
-                        x: 0,
-                        y: 0,
-                        logging: false
-                    },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }
-                };
-
-                const worker = html2pdf().set(opt).from(container);
-                await worker.save();
-
-                document.body.removeChild(container);
-            } catch (err) {
-                console.error('Final Save Error:', err);
-                alert("儲存失敗。請使用「系統列印」。");
-            } finally {
-                saveDirectPdfBtn.disabled = false;
-                saveDirectPdfBtn.innerHTML = originalHtml;
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-            }
+                </head>
+                <body>
+                    ${getReportBody(label1.outerHTML, label2.outerHTML, logoUrlInput)}
+                </body>
+                </html>
+            `;
+            reportWindow.document.write(html);
+            reportWindow.document.close();
         });
     }
 });
