@@ -465,41 +465,49 @@ button.secondary:hover {
   /* Responsive Nutrition Label */
   .nutrition-label {
     width: 100% !important;
-    max-width: 450px !important; /* Cap for easier reading on wide mobiles */
+    max-width: 450px !important;
     margin: 0 auto;
-    padding: 10px 15px !important;
-    font-size: 0.9rem;
+    padding: 10px 12px !important;
+    font-size: 0.8rem !important; /* Shrink font to prevent wrapping */
+  }
+
+  .nutrition-table td:nth-child(1) {
+    width: 38% !important; /* Give more space to labels on mobile */
   }
 
   .label-header {
-    font-size: 22px;
+    font-size: 18px !important;
   }
 
   /* Mobile Button Optimization */
   .button-container {
     flex-direction: row !important;
-    gap: 0.5rem !important;
+    gap: 0.8rem !important;
     width: 100%;
+    justify-content: center !important;
   }
 
   button {
-    padding: 0.75rem 0.5rem !important;
+    padding: 0.8rem 0.5rem !important;
     font-size: 1rem !important;
     flex: 1;
-    white-space: nowrap !important; /* Prevent text wrapping as requested */
+    white-space: nowrap !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
     min-width: 0;
     border-radius: 0.8rem !important;
   }
 
+  /* Hide icons on mobile to ensure text is perfectly centered */
   button i {
-    width: 18px !important; /* Smaller icon on mobile */
-    height: 18px !important;
-    gap: 0.4rem !important;
+    display: none !important;
   }
 
   .label-heading {
     width: 100%;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     padding: 0.4rem 1rem;
   }
 }
