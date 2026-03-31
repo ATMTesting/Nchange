@@ -12,7 +12,8 @@
         rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- html2pdf.js (Removed due to local file security restrictions) -->
+    <!-- Direct Download Support (GitHub Testing) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
@@ -157,9 +158,15 @@
                         </div>
                     </div>
 
-                    <div class="button-container">
-                        <button class="primary" id="downloadPdfBtn">
-                            <i data-lucide="printer"></i> 轉為 PDF檔案
+                    <div class="button-container" style="gap: 1rem; flex-wrap: wrap; justify-content: center;">
+                        <button class="secondary" id="previewReportBtn" title="開啟分頁預覽">
+                            <i data-lucide="eye"></i> 報表預覽
+                        </button>
+                        <button class="primary" id="printPdfBtn" title="使用瀏覽器原生引擎 (推薦)">
+                            <i data-lucide="printer"></i> 系統列印 (穩定版)
+                        </button>
+                        <button class="accent-btn" id="saveDirectPdfBtn" title="實驗性功能，限線上環境" style="background: linear-gradient(135deg, var(--accent-color), #f97316); color: white;">
+                            <i data-lucide="download"></i> 直接儲存 (GitHub 測試)
                         </button>
                     </div>
                 </div>
