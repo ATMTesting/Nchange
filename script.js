@@ -211,17 +211,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const getReportStyles = () => {
         return `
             body { 
-                background: #f3f4f6; 
+                background: white; 
                 margin: 0; 
                 padding: 0; 
-                font-family: 'Inter', 'Noto Sans TC', sans-serif;
+                font-family: 'Noto Sans TC', sans-serif; /* CRITICAL: Fixed font for canvas capture */
             }
             .report-page {
                 background: white;
-                margin: 40px auto;
+                margin: 0 auto;
                 padding: 10mm 15mm;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-                width: 210mm; /* A4 size width */
+                width: 210mm; 
                 min-height: 295mm;
                 display: flex;
                 flex-direction: column;
@@ -240,13 +239,13 @@ document.addEventListener('DOMContentLoaded', () => {
             .sgs-platform-name {
                 margin-left: 35px;
                 font-size: 40px;
-                font-weight: 700;
+                font-weight: 900;
                 color: #666;
                 letter-spacing: 2px;
             }
             .report-title {
                 font-size: 34px;
-                font-weight: 800;
+                font-weight: 900;
                 color: black;
                 margin-bottom: 20px;
             }
@@ -259,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 text-align: center;
                 font-size: 20px;
                 margin-bottom: 15px;
-                font-weight: 500;
+                font-weight: 700;
                 color: #444;
             }
             .label-container {
@@ -268,14 +267,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 margin-bottom: 30px;
             }
             .nutrition-label {
-                border: 2px solid black !important;
+                border: 2.5px solid black !important;
                 box-shadow: none !important;
                 width: 100% !important;
                 padding: 15px 25px !important;
                 box-sizing: border-box !important;
-                font-family: "PMingLiU", "MingLiU", serif !important;
+                font-family: 'Noto Sans TC', sans-serif !important;
             }
-            .nutrition-label * { font-weight: 400 !important; }
             .label-header {
                 font-size: 32px;
                 font-weight: 900 !important;
@@ -292,9 +290,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 margin-top: 5px !important;
             }
             .nutrition-table th, .nutrition-table td {
-                padding: 2px 0 !important;
+                padding: 3px 0 !important;
                 vertical-align: baseline !important;
-                border-bottom: 1.5px solid black !important;
+                border-bottom: 2px solid black !important;
+                font-weight: 700 !important;
             }
             .nutrition-table tr:last-child td { border-bottom: none !important; }
             .nutrition-table td:nth-child(1) { width: 34% !important; text-align: left !important; }
@@ -302,19 +301,20 @@ document.addEventListener('DOMContentLoaded', () => {
             .data-wrapper { display: flex !important; justify-content: center !important; align-items: baseline !important; width: 100% !important; }
             .v-num { width: 4.5em !important; text-align: right !important; padding-right: 0.1rem !important; }
             .v-unit { width: 3.5em !important; text-align: left !important; padding-left: 0.1rem !important; }
-            .nutrition-table thead th { text-align: center !important; border-bottom: 2px solid black !important; font-weight: 400 !important; }
+            .nutrition-table thead th { text-align: center !important; border-bottom: 3px solid black !important; font-weight: 900 !important; }
             .indent td:nth-child(1) { padding-left: 18px !important; }
             .sgs-footer {
                 margin-top: auto;
                 display: flex;
                 justify-content: space-between;
-                font-size: 13px;
+                font-size: 14px;
                 color: #333;
                 padding-top: 15px;
                 border-top: 2px solid #DDD;
+                font-weight: 500;
             }
             .disclaimer { flex-basis: 80%; line-height: 1.6; }
-            .page-number { font-weight: bold; }
+            .page-number { font-weight: 900; }
             
             @media print {
                 body { background: white !important; }
@@ -324,33 +324,33 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getReportBody = (label1Html, label2Html, logoUrl) => {
-        const logoHtml = logoUrl ? `<img src="${logoUrl}" class="sgs-logo">` : `<div class="logo-placeholder">安心資訊平台</div>`;
+        const logoHtml = logoUrl ? `<img src="${logoUrl}" class="sgs-logo">` : `<div class="logo-placeholder">營養換算報表</div>`;
         return `
             <div class="report-page">
                 <div class="sgs-header">
                     ${logoHtml}
-                    <div class="sgs-platform-name">換算結果報表</div>
+                    <div class="sgs-platform-name">營養標報表</div>
                 </div>
-                <div class="report-title">營養標示換算結果</div>
+                <div class="report-title">數據換算結果清單</div>
                 <div class="title-underline"></div>
-                <div class="format-tag">(格式一)</div>
+                <div class="format-tag">【 格式一：每份與每 100 公克 】</div>
                 <div class="label-container">${label1Html}</div>
                 <div class="sgs-footer">
-                    <div class="disclaimer">*本營養標示換算工具不對產品合法性做判斷，所提供之換算結果與表格僅供參考，請以最新公告法規內容為準。</div>
+                    <div class="disclaimer">*本報表由系統自動產出，數據僅供參考。請依政府最新法規公告為準。</div>
                     <div class="page-number">Page:1/2</div>
                 </div>
             </div>
             <div class="report-page">
                 <div class="sgs-header">
                     ${logoHtml}
-                    <div class="sgs-platform-name">換算結果報表</div>
+                    <div class="sgs-platform-name">營養標報表</div>
                 </div>
-                <div class="report-title">營養標示換算結果</div>
+                <div class="report-title">數據換算結果清單</div>
                 <div class="title-underline"></div>
-                <div class="format-tag">(格式二)</div>
+                <div class="format-tag">【 格式二：每份與每日參考值百分比 】</div>
                 <div class="label-container">${label2Html}</div>
                 <div class="sgs-footer">
-                    <div class="disclaimer">*本營養標示換算工具不對產品合法性做判斷，所提供之換算結果與表格僅供參考，請以最新公告法規內容為準。</div>
+                    <div class="disclaimer">*本報表由系統自動產出，數據僅供參考。請依政府最新法規公告為準。</div>
                     <div class="page-number">Page:2/2</div>
                 </div>
             </div>
@@ -369,7 +369,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <html lang="zh-TW">
             <head>
                 <meta charset="UTF-8">
-                <title>${getFormattedDate()}_八大營養標示換算報表</title>
+                <title>${getFormattedDate()}_報表預覽</title>
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
                 <style>${getReportStyles()}</style>
             </head>
             <body>
@@ -377,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${shouldPrint ? `
                 <script>
                     window.onload = function() {
-                        setTimeout(function() { window.print(); }, 500);
+                        setTimeout(function() { window.print(); }, 1000);
                         window.onafterprint = function() { window.close(); };
                     }
                 </script>
@@ -399,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (saveDirectPdfBtn) {
         saveDirectPdfBtn.addEventListener('click', async () => {
             if (window.location.protocol === 'file:') {
-                const proceed = confirm("偵測到您正在「本地環境」執行。此按鈕產生的 PDF 在本地環境極大機率出現空白。建議使用「系統列印」按鈕。\n\n是否仍要嘗試（供 GitHub 測試用）？");
+                const proceed = confirm("本地環境極大機率失敗，建議使用「系統列印」。是否繼續測試？");
                 if (!proceed) return;
             }
 
@@ -410,23 +413,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             saveDirectPdfBtn.disabled = true;
             const originalHtml = saveDirectPdfBtn.innerHTML;
-            saveDirectPdfBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> 處理中...';
+            saveDirectPdfBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> 最終渲染中...';
             if (typeof lucide !== 'undefined') lucide.createIcons();
 
             try {
-                // Step 1: Base64 Logo with retry/fallback
                 const base64Logo = await toBase64(logoUrlInput);
                 
-                // Step 2: Create container at absolute top (FIX: avoid scroll offsets)
+                // FINAL ATTEMPT: Visible container AT THE BOTTOM
                 const container = document.createElement('div');
-                container.id = 'temp-pdf-container';
+                container.id = 'ultimate-pdf-container';
                 container.style.position = 'absolute';
-                container.style.top = '0';
+                container.style.top = '10000px'; 
                 container.style.left = '0';
                 container.style.width = '210mm';
-                container.style.zIndex = '-9999';
-                container.style.opacity = '0.01'; // Visible to renderer but hidden from user
+                container.style.zIndex = '9999';
                 container.style.background = 'white';
+                container.style.visibility = 'visible';
+                container.style.opacity = '1';
 
                 container.innerHTML = `
                     <style>${getReportStyles()}</style>
@@ -435,18 +438,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.appendChild(container);
                 
                 // Step 3: DELAY for browser to settle layout and fonts
-                await new Promise(r => setTimeout(r, 600));
+                await new Promise(r => setTimeout(r, 1200));
 
                 const opt = {
                     margin: 0,
-                    filename: `${getFormattedDate()}_八大營養標示換算報表_GitHub穩定版.pdf`,
+                    filename: `${getFormattedDate()}_八大營養標示_GitHub穩定版.pdf`,
                     image: { type: 'jpeg', quality: 1.0 },
                     html2canvas: { 
                         scale: 2, 
                         useCORS: true, 
                         allowTaint: true, 
                         backgroundColor: '#FFFFFF',
-                        scrollY: 0,  // CRITICAL: ignore parent scroll
+                        scrollY: 0, 
                         scrollX: 0,
                         x: 0,
                         y: 0,
@@ -455,14 +458,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }
                 };
 
-                // Step 4: High stability capture
                 const worker = html2pdf().set(opt).from(container);
                 await worker.save();
 
                 document.body.removeChild(container);
             } catch (err) {
-                console.error('Save PDF Error:', err);
-                alert("儲存過程發生錯誤。這通常與瀏覽器快取或字體載入有關。已恢復環境，建議改用「系統列印」。");
+                console.error('Final Save Error:', err);
+                alert("儲存失敗。請使用「系統列印」。");
             } finally {
                 saveDirectPdfBtn.disabled = false;
                 saveDirectPdfBtn.innerHTML = originalHtml;
