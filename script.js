@@ -414,28 +414,55 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof lucide !== 'undefined') lucide.createIcons();
 
             try {
+                // Step 1: Base64 Logo with retry/fallback
                 const base64Logo = await toBase64(logoUrlInput);
+                
+                // Step 2: Create container at absolute top (FIX: avoid scroll offsets)
                 const container = document.createElement('div');
-                container.style.position = 'fixed';
-                container.style.top = '0'; container.style.left = '0';
-                container.style.width = '210mm'; container.style.zIndex = '-1000';
-                container.style.opacity = '0.01';
-                container.innerHTML = `<style>${getReportStyles()}</style><div id="capture-area">${getReportBody(label1.outerHTML, label2.outerHTML, base64Logo)}</div>`;
+                container.id = 'temp-pdf-container';
+                container.style.position = 'absolute';
+                container.style.top = '0';
+                container.style.left = '0';
+                container.style.width = '210mm';
+                container.style.zIndex = '-9999';
+                container.style.opacity = '0.01'; // Visible to renderer but hidden from user
+                container.style.background = 'white';
+
+                container.innerHTML = `
+                    <style>${getReportStyles()}</style>
+                    <div id="capture-area">${getReportBody(label1.outerHTML, label2.outerHTML, base64Logo)}</div>
+                `;
                 document.body.appendChild(container);
                 
+                // Step 3: DELAY for browser to settle layout and fonts
+                await new Promise(r => setTimeout(r, 600));
+
                 const opt = {
                     margin: 0,
-                    filename: `${getFormattedDate()}_八大營養標示換算報表_GitHub測試.pdf`,
+                    filename: `${getFormattedDate()}_八大營養標示換算報表_GitHub穩定版.pdf`,
                     image: { type: 'jpeg', quality: 1.0 },
-                    html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#FFFFFF', width: 794, windowWidth: 794 },
+                    html2canvas: { 
+                        scale: 2, 
+                        useCORS: true, 
+                        allowTaint: true, 
+                        backgroundColor: '#FFFFFF',
+                        scrollY: 0,  // CRITICAL: ignore parent scroll
+                        scrollX: 0,
+                        x: 0,
+                        y: 0,
+                        logging: false
+                    },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }
                 };
 
-                await html2pdf().set(opt).from(container).save();
+                // Step 4: High stability capture
+                const worker = html2pdf().set(opt).from(container);
+                await worker.save();
+
                 document.body.removeChild(container);
             } catch (err) {
-                console.error(err);
-                alert("儲存過程發生錯誤。建議改用「系統列印」。");
+                console.error('Save PDF Error:', err);
+                alert("儲存過程發生錯誤。這通常與瀏覽器快取或字體載入有關。已恢復環境，建議改用「系統列印」。");
             } finally {
                 saveDirectPdfBtn.disabled = false;
                 saveDirectPdfBtn.innerHTML = originalHtml;
