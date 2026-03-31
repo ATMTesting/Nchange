@@ -450,19 +450,61 @@ button.secondary:hover {
   }
 
   .card {
-    padding: 2rem;
+    padding: 1.5rem;
   }
 
   h1 {
-    font-size: 2.25rem;
+    font-size: 1.75rem;
   }
 
   .label-preview-container {
-    gap: 2rem;
+    padding: 0;
+    gap: 1.5rem;
+  }
+
+  /* Responsive Nutrition Label */
+  .nutrition-label {
+    width: 100% !important;
+    max-width: 450px !important; /* Cap for easier reading on wide mobiles */
+    margin: 0 auto;
+    padding: 10px 15px !important;
+    font-size: 0.9rem;
+  }
+
+  .label-header {
+    font-size: 22px;
+  }
+
+  /* Mobile Button Optimization */
+  .button-container {
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+    width: 100%;
+  }
+
+  button {
+    padding: 0.75rem 0.5rem !important;
+    font-size: 1rem !important;
+    flex: 1;
+    white-space: nowrap !important; /* Prevent text wrapping as requested */
+    min-width: 0;
+    border-radius: 0.8rem !important;
+  }
+
+  button i {
+    width: 18px !important; /* Smaller icon on mobile */
+    height: 18px !important;
+    gap: 0.4rem !important;
+  }
+
+  .label-heading {
+    width: 100%;
+    font-size: 0.9rem;
+    padding: 0.4rem 1rem;
   }
 }
 
-/* Custom Modal Styles */
+/* --- Unified & Optimized Modal System (Responsive) --- */
 .modal-wrapper {
   position: fixed;
   inset: 0;
@@ -472,7 +514,7 @@ button.secondary:hover {
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  padding: 1.5rem;
+  padding: 20px;
 }
 
 .modal-wrapper.active {
@@ -480,50 +522,43 @@ button.secondary:hover {
 }
 
 .modal-card {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 2.5rem;
+  background: white;
+  padding: 2.5rem 3rem;
   border-radius: 2rem;
-  max-width: 440px;
-  width: 100%;
+  width: fit-content !important;
+  min-width: 400px;
+  max-width: 95vw;
   text-align: center;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
   animation: modalScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 @keyframes modalScale {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .modal-icon {
-  width: 64px;
-  height: 64px;
-  background: #FEE2E2;
-  color: #EF4444;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
-.modal-icon i {
-  width: 32px;
-  height: 32px;
-}
+.modal-icon.reset-icon { background: #FEE2E2; color: #EF4444; }
+.modal-icon.validation-icon { background: #DCFCE7; color: var(--primary); }
 
 .modal-card h3 {
   font-size: 1.5rem;
   font-weight: 800;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   color: #111827;
 }
 
@@ -533,38 +568,69 @@ button.secondary:hover {
   line-height: 1.6;
 }
 
+#validation-msg-container {
+  background: #F8FAFC;
+  border-left: 4px solid var(--primary);
+  border-radius: 12px;
+  padding: 1.25rem 2rem;
+  margin: 1.5rem 0;
+  text-align: left;
+  width: fit-content;
+  max-width: 100%;
+}
+
+#validation-msg-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#validation-msg-list li {
+  white-space: nowrap; /* Keep single line as requested */
+  color: #334155;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: 0.95rem;
+}
+
+#validation-msg-list li:last-child { margin-bottom: 0; }
+
+#validation-msg-list li::before {
+  content: "•";
+  color: var(--primary);
+  position: absolute;
+  left: 0;
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+
 .modal-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  margin-top: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
   gap: 1.25rem;
 }
 
+/* Ensure buttons in modal are properly sized */
+.modal-buttons button {
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  min-width: 120px;
+}
+
+#closeValidation {
+  min-width: 150px;
+}
+
 button.danger {
-  padding: 1rem;
-  border-radius: 1rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
   background: #EF4444;
   color: white;
-  font-size: 1rem;
 }
 
 button.danger:hover {
   background: #DC2626;
-  transform: translateY(-2px);
   box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
 }
-/* Modal Enhancements */
-.modal-icon.reset-icon { background: #FEE2E2 !important; color: #EF4444 !important; }
-.modal-icon.validation-icon { background: #DCFCE7 !important; color: var(--primary-color) !important; }
-#validation-modal .modal-buttons { grid-template-columns: 1fr; }
-#validation-msg-list b { color: var(--primary-color); font-weight: 800; }
-
-/* Smaller Validation Modal Icon and Button */
-#validation-modal .modal-icon { width: 42px !important; height: 42px !important; margin-bottom: 1rem; }
-#validation-modal .modal-icon i { width: 20px !important; height: 20px !important; }
-#validation-modal .modal-card { width: 360px !important; padding: 2rem !important; }
-#validation-modal .modal-buttons { display: flex; justify-content: center; }
-#closeValidation { width: auto !important; padding: 0.8rem 2.5rem !important; min-width: 120px; }
