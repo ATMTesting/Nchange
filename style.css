@@ -152,6 +152,7 @@ button {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
+  justify-content: center; /* Center horizontally */
   gap: 0.75rem;
   border: none;
   font-size: 1.1rem;
@@ -555,3 +556,15 @@ button.danger:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
 }
+/* Modal Enhancements */
+.modal-icon.reset-icon { background: #FEE2E2 !important; color: #EF4444 !important; }
+.modal-icon.validation-icon { background: #DCFCE7 !important; color: var(--primary-color) !important; }
+#validation-modal .modal-buttons { grid-template-columns: 1fr; }
+#validation-msg-list b { color: var(--primary-color); font-weight: 800; }
+
+/* Smaller Validation Modal Icon and Button */
+#validation-modal .modal-icon { width: 42px !important; height: 42px !important; margin-bottom: 1rem; }
+#validation-modal .modal-icon i { width: 20px !important; height: 20px !important; }
+#validation-modal .modal-card { width: 360px !important; padding: 2rem !important; }
+#validation-modal .modal-buttons { display: flex; justify-content: center; }
+#closeValidation { width: auto !important; padding: 0.8rem 2.5rem !important; min-width: 120px; }
