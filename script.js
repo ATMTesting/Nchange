@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
     const resetBtn = document.getElementById('resetBtn');
     const resultSection = document.getElementById('result-section');
-    
+
     // Clear serving inputs on load to ensure empty on Ctrl+F5
     const servingSizeInput = document.getElementById('servingSize');
     const servingsPerContainerInput = document.getElementById('servingsPerContainer');
@@ -23,13 +23,34 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // TFDA Rounding & 0-Labeling Rules
-    const applyRules = (value, type) => {
-        if (value === null || value === undefined || isNaN(value)) return "0.0";
+    const applyRules = (value, type, isPerServing = false) => {
+        if (value === null || value === undefined || isNaN(value)) {
+            return isPerServing ? "0.0" : "0.0";
+        }
         const v = parseFloat(value);
+        if (v === 0) return "0.0";
+
+        // 如果不是每份（Per 100g），維持標準一位小數
+        if (!isPerServing) {
+            return v.toFixed(1);
+        }
+
+        // --- 每份 (Per Serving) 的動態小數邏輯 ---
+        // 1. 預設顯示一位小數
+        let formatted = v.toFixed(1);
         
-        // TFDA rules for 0-labeling (not applicable here as user wants 0.0, but keeping logic for future)
-        // However, user explicitly requested "0.0" for one-decimal format
-        return v.toFixed(1);
+        // 2. 如果一位小數捨入後變為 "0.0"，但原始值大於 0 (微量情況)
+        if (formatted === "0.0" && v > 0) {
+            // 嘗試增加到最多 4 位小數，直到出現有效數字
+            for (let d = 2; d <= 4; d++) {
+                let temp = v.toFixed(d);
+                if (parseFloat(temp) > 0) {
+                    return temp;
+                }
+            }
+        }
+        
+        return formatted;
     };
 
     const calculatePercent = (value, key) => {
@@ -65,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const table = document.createElement('table');
         table.className = 'nutrition-table';
-        
+
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
         headerRow.innerHTML = `
@@ -80,17 +101,17 @@ document.addEventListener('DOMContentLoaded', () => {
         nutrients.forEach(n => {
             const tr = document.createElement('tr');
             if (n.indent) tr.className = 'indent';
-            
+
             const nameTd = document.createElement('td');
             nameTd.textContent = n.label;
-            
+
             const val1Td = document.createElement('td');
-            const v1Num = applyRules(data[n.key].perServing, n.key);
+            const v1Num = applyRules(data[n.key].perServing, n.key, true);
             val1Td.innerHTML = `<div class="data-wrapper"><span class="v-num">${v1Num}</span><span class="v-unit">${n.unit}</span></div>`;
-            
+
             const val2Td = document.createElement('td');
             if (format === 1) {
-                const v2Num = applyRules(data[n.key].per100, n.key);
+                const v2Num = applyRules(data[n.key].per100, n.key, false);
                 val2Td.innerHTML = `<div class="data-wrapper"><span class="v-num">${v2Num}</span><span class="v-unit">${n.unit}</span></div>`;
             } else {
                 const p = calculatePercent(data[n.key].perServing, n.key);
@@ -101,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     val2Td.innerHTML = `<div class="data-wrapper"><span class="v-num">${v2Num}</span><span class="v-unit">%</span></div>`;
                 }
             }
-            
+
             tr.appendChild(nameTd);
             tr.appendChild(val1Td);
             tr.appendChild(val2Td);
@@ -114,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const calculate = () => {
         const servingSizeInputVal = parseFloat(document.getElementById('servingSize').value) || 0;
         const servingsPerContainerVal = parseFloat(document.getElementById('servingsPerContainer').value) || 0;
-        
+
         // --- SGS VALIDATION SPECS START ---
         const totalFatVal = parseFloat(document.querySelector('[data-key="fat"]').value) || 0;
         const satFatVal = parseFloat(document.querySelector('[data-key="saturatedFat"]').value) || 0;
@@ -313,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .nutrition-table td:nth-child(1) { width: 34% !important; text-align: left !important; }
             .nutrition-table td:nth-child(2), .nutrition-table td:nth-child(3) { width: 33% !important; }
             .data-wrapper { display: flex !important; justify-content: center !important; align-items: baseline !important; width: 100% !important; }
-            .v-num { width: 4.5em !important; text-align: right !important; padding-right: 0.1rem !important; }
+            .v-num { width: 5.5em !important; text-align: right !important; padding-right: 0.1rem !important; }
             .v-unit { width: 3.5em !important; text-align: left !important; padding-left: 0.1rem !important; }
             .nutrition-table thead th { text-align: center !important; border-bottom: 3px solid black !important; font-weight: 900 !important; }
             .indent td:nth-child(1) { padding-left: 18px !important; }
