@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const v2Num = applyRules(data[n.key].per100, n.key, false);
                 val2Td.innerHTML = `<div class="data-wrapper"><span class="v-num">${v2Num}</span><span class="v-unit">${n.unit}</span></div>`;
             } else {
-                const p = calculatePercent(data[n.key].perServing, n.key);
+                const p = calculatePercent(parseFloat(v1Num), n.key);
                 if (p === "＊") {
                     val2Td.innerHTML = `<div style="text-align: center;">＊</div>`;
                 } else {
